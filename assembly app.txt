@@ -1,0 +1,78 @@
+
+#  $t0--temp1                  $t3--length_n          
+#  $t1--temp2                  $t6--v1[i]               
+#  $t2--iterrator_i            $t7--v2[n-1-i]           
+#  $s2/a0--sum_s
+
+#----------------------------------------------------------------------------------------------------------------------
+.text
+.globl main
+main:
+la      $s0, v1 			         # v1 we save in this register
+la      $s1, v2                                  # v2 we save in this register	
+lw     $t0, temp1     	 	              
+lw     $t1, temp2      		              	
+lw     $t2, iterrator_i                       
+lw     $t3, length_n          	      
+lw     $s2, sum_s  
+
+
+
+VectorOperation:
+
+for_loop:
+bgt $t2, $t3, exit_loop                       #for loop i>n
+
+
+mul $t4,$t2, 4                                   
+add $t4, $t4, $s0                             #v1[i]
+	
+sub $t5, $s4, $t2                             # n-i
+sub $t5, $t5, 1                               # n-i-1
+
+mul $t5, $t5, 4                               
+add $t5, $t5, $s1                             # v2[n-i-1]
+
+lw $t6, 0($t4)   		              # v1[i] puts at $t6
+lw $t7, 0($t5)  		              # v2[n-i-1]
+			  
+lw  $t0, 0($t4)  	                      #temp1 = v1[i]	
+lw $t1, 0($t5)  		              #temp2 = v2[n-1-i]
+		
+add $t6, $t0, $t1    		              #v1[i] = temp1 + temp2
+sub $t7, $t0, $t1    		              #v2[n-1-i] = temp1 - temp2
+		
+add $s3, $t6, $t7   		              #at $s3 it saves the sum of v1 and v2
+add $s2, $s2, $s3   		              # sum = sum + vector1[i] + vector2[n-1-i]
+
+addi $t2, $t2, 1                              # i++
+
+		
+exit_loop:
+		
+jal VectorOperation
+
+  li $v0, 4                       
+  la $a0, Rezultati                         # Prints the string/text
+ syscall  
+		 		                         
+  li $v0, 1
+  la $a0,($s2)                              # Prints the sum of vector members
+
+ syscall 
+
+  li $v0, 10                                # Ends the program
+ syscall
+jr $ra
+#----------------------------------------------------------------------------------------------------------------------
+
+.data
+                   
+v1:      	.word 5, 4, 9, 17, 31, 8        
+v2:     	.word -5, 2, 3, 4, 6, -3   
+length_n: 	.word  6
+temp1: 		.word  0                    
+temp2: 		.word  0                    
+sum_s: 		.word  0 	            
+iterrator_i:    .word  0 
+Result:         .asciiz "The result is: "
